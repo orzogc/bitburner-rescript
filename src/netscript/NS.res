@@ -4,8 +4,6 @@ open NSTypes
 
 type t
 
-//@val external _ns: t = "ns"
-
 /** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.args.md> */
 @get
 external args: t => array<scriptArg> = "args"
@@ -291,7 +289,7 @@ external spawn: (t, file, ~threads: threads=?, ~args: array<scriptArg>) => unit 
 external spawnWithOptions: (t, file, ~options: spawnOptions=?, ~args: array<scriptArg>) => unit =
   "spawn"
 
-/** https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.kill.md */
+/** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.kill.md> */
 @send
 external killByPID: (t, pid) => bool = "kill"
 
@@ -340,7 +338,7 @@ external getHackingLevel: t => skillLevel = "getHackingLevel"
 @send
 external getHackingMultipliers: t => hackingMultipliers = "getHackingMultipliers"
 
-/** https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.gethacknetmultipliers.md */
+/** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.gethacknetmultipliers.md> */
 @send
 external getHacknetMultipliers: t => hacknetMultipliers = "getHacknetMultipliers"
 
