@@ -1,0 +1,24 @@
+{
+  "name": "bitburner-rescript",
+  "version": "0.1.0",
+  "keywords": [
+    "bitburner",
+    "rescript"
+  ],
+  "license": "GPL-3.0-only",
+  "author": "orzogc",
+  "scripts": {
+    "build": "rescript",
+    "clean": "rescript clean",
+    "dev": "rescript build -w"
+  },
+  "type": "module",
+  "dependencies": {
+    "@rescript/core": "^0.6.0",
+    "rescript": "^11.0.0-rc.6"
+  },
+  "devDependencies": {
+    "bitburner-filesync": "1.2.0-beta4",
+    "esbuild": "^0.19.8"
+  }
+}

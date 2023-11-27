@@ -1,0 +1,15 @@
+.DS_Store
+/node_modules/
+/lib/
+.bsb.lock
+.merlin
+
+package-lock.json
+
+.yarn/
+.yarnrc.yml
+yarn.lock
+
+pnpm-lock.yaml
+
+/dist/
