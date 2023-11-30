@@ -4,6 +4,8 @@ open NSTypes
 
 type t
 
+type main = t => promise<unit>
+
 /** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.args.md> */
 @get
 external args: t => array<scriptArg> = "args"
@@ -345,6 +347,10 @@ external getHacknetMultipliers: t => hacknetMultipliers = "getHacknetMultipliers
 /** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.getserver.md> */
 @send
 external getServer: (t, ~host: host=?) => server = "getServer"
+
+/** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.getserver.md> */
+@send
+external getHomeServer: (t, @as("home") _) => server = "getServer"
 
 /** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.getservermoneyavailable.md> */
 @send

@@ -1,5 +1,5 @@
-let main = async ns => {
-  let (flags, args) = ns->Helpers.getFlagsExn({
+let main: NS.main = async ns => {
+  let (flags, args) = ns->Flags.getFlagsExn({
     "onlyPurchasedServers": false,
     "excludePurchasedServers": false,
     "help": false,
