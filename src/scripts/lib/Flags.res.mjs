@@ -2,8 +2,12 @@
 
 import * as PervasivesU from "rescript/lib/es6/pervasivesU.js";
 
-function argsToStrings(ns) {
-  return ns.args.map(function (arg) {
+var onlyHelpSchema = {
+  help: false
+};
+
+function argsToStrings(args) {
+  return args.map(function (arg) {
               switch (typeof arg) {
                 case "string" :
                     return arg;
@@ -16,11 +20,7 @@ function argsToStrings(ns) {
             });
 }
 
-function getFirstArg(ns) {
-  return argsToStrings(ns)[0];
-}
-
-function getFlagsExn(ns, obj) {
+function schemaToFlagsExn(getFlags, obj) {
   var schema = Object.keys(obj).map(function (key) {
         var value = obj[key];
         if (Array.isArray(value)) {
@@ -55,7 +55,7 @@ function getFlagsExn(ns, obj) {
           return PervasivesU.invalid_arg("Object's value must be a string, float, bool or array of strings");
         }
       });
-  var flags = ns.flags(schema);
+  var flags = getFlags(schema);
   Object.values(flags).forEach(function (v) {
         if (v === null) {
           return PervasivesU.invalid_arg("flags' values contain null");
@@ -83,9 +83,16 @@ function getFlagsExn(ns, obj) {
         ];
 }
 
+function getFlagsExn(ns, obj) {
+  return schemaToFlagsExn((function (extra) {
+                return ns.flags(extra);
+              }), obj);
+}
+
 export {
+  onlyHelpSchema ,
   argsToStrings ,
-  getFirstArg ,
+  schemaToFlagsExn ,
   getFlagsExn ,
 }
 /* No side effect */

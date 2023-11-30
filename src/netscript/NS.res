@@ -6,6 +6,8 @@ type t
 
 type main = t => promise<unit>
 
+type autocomplete = (autocompleteData, array<scriptArg>) => array<string>
+
 /** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.args.md> */
 @get
 external args: t => array<scriptArg> = "args"

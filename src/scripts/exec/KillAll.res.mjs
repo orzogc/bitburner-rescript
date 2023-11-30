@@ -3,12 +3,14 @@
 import * as Flags from "../lib/Flags.res.mjs";
 import * as Helpers from "../lib/Helpers.res.mjs";
 
+var schema = {
+  onlyPurchasedServers: false,
+  excludePurchasedServers: false,
+  help: false
+};
+
 async function main(ns) {
-  var match = Flags.getFlagsExn(ns, {
-        onlyPurchasedServers: false,
-        excludePurchasedServers: false,
-        help: false
-      });
+  var match = Flags.getFlagsExn(ns, schema);
   var args = match[1];
   var flags = match[0];
   var onlyPurchasedServers = flags.onlyPurchasedServers;
@@ -37,7 +39,19 @@ async function main(ns) {
   }
 }
 
+function autocomplete(data, param) {
+  var match = Flags.schemaToFlagsExn(data.flags, schema);
+  var flags = match[0];
+  if (flags.help || flags.onlyPurchasedServers || flags.excludePurchasedServers) {
+    return [];
+  } else {
+    return data.servers;
+  }
+}
+
 export {
+  schema ,
   main ,
+  autocomplete ,
 }
 /* No side effect */

@@ -1,9 +1,11 @@
+let schema = {
+  "onlyPurchasedServers": false,
+  "excludePurchasedServers": false,
+  "help": false,
+}
+
 let main: NS.main = async ns => {
-  let (flags, args) = ns->Flags.getFlagsExn({
-    "onlyPurchasedServers": false,
-    "excludePurchasedServers": false,
-    "help": false,
-  })
+  let (flags, args) = ns->Flags.getFlagsExn(schema)
   let onlyPurchasedServers = flags["onlyPurchasedServers"]
   let excludePurchasedServers = flags["excludePurchasedServers"]
 
@@ -30,5 +32,15 @@ If other arguments exist, Kills all running scripts on servers which hostname in
     } else {
       ns->Helpers.crawlServers(~excludePurchasedServers)->Set.forEach(killServer)
     }
+  }
+}
+
+let autocomplete: NS.autocomplete = (data, _) => {
+  let (flags, _) = Flags.schemaToFlagsExn(data.flags, schema)
+
+  if flags["help"] || flags["onlyPurchasedServers"] || flags["excludePurchasedServers"] {
+    []
+  } else {
+    data.servers
   }
 }

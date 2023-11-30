@@ -1,8 +1,8 @@
-/** Converts NS arguments to an array of strings */
-let argsToStrings = ns =>
-  ns
-  ->NS.args
-  ->Array.map(arg =>
+let onlyHelpSchema = {"help": false}
+
+/** Converts arguments to an array of strings. */
+let argsToStrings = args =>
+  args->Array.map(arg =>
     switch arg {
     | NSTypes.StringArg(s) => s
     | NumberArg(f) => f->Float.toString
@@ -10,17 +10,19 @@ let argsToStrings = ns =>
     }
   )
 
-/** Gets the first argument */
-let getFirstArg = ns => (ns->argsToStrings)[0]
+/** Converts schema to flags.
 
-/** Gets flags from NS.
+ The First argument is a function to get flags.
 
  The second argument is an Object in which keys are flag names and values are default values of flags.
  The type of values must be a string, float, bool or array of strings.
 
  Returns flags from NS and remaining arguments which are not listed in the Object's keys.
  */
-let getFlagsExn: 'a. (NS.t, {..} as 'a) => ('a, array<string>) = (ns, obj) => {
+let schemaToFlagsExn: 'a. (NSTypes.getFlags, {..} as 'a) => ('a, array<string>) = (
+  getFlags,
+  obj,
+) => {
   let schema =
     obj
     ->Object.keysToArray
@@ -44,7 +46,7 @@ let getFlagsExn: 'a. (NS.t, {..} as 'a) => ('a, array<string>) = (ns, obj) => {
       }
     })
 
-  let flags = ns->NS.flags(schema)
+  let flags = getFlags(schema)
 
   // returned flags may contain `null` value
   flags
@@ -72,3 +74,13 @@ let getFlagsExn: 'a. (NS.t, {..} as 'a) => ('a, array<string>) = (ns, obj) => {
 
   (flags->Obj.magic, remains)
 }
+
+/** Gets flags from NS.
+
+ The second argument is an Object in which keys are flag names and values are default values of flags.
+ The type of values must be a string, float, bool or array of strings.
+
+ Returns flags from NS and remaining arguments which are not listed in the Object's keys.
+ */
+let getFlagsExn: 'a. (NS.t, {..} as 'a) => ('a, array<string>) = (ns, obj) =>
+  schemaToFlagsExn(NS.flags(ns, ...), obj)

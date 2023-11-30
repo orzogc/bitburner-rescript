@@ -451,3 +451,14 @@ type resetInfo = {
   ownedAugs: Map.t<string, int>,
   ownedSF: Map.t<string, int>,
 }
+
+type getFlags = array<(string, scriptFlag)> => Dict.t<scriptFlag>
+
+/** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.autocompletedata.md> */
+type autocompleteData = {
+  servers: array<string>,
+  scripts: array<string>,
+  txts: array<string>,
+  /** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.autocompletedata.flags.md> */
+  flags: getFlags,
+}
