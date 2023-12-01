@@ -1,18 +1,68 @@
-type error = [#notHackableServer]
+type error = [#notHackableServer | #calculationFailure]
 
-let weakenThreads = (ns, host) => {
-  let info = ns->NS.getServer(~host)
+let weakenThreads = (ns, target, cores, ~weakenSecurity=?) => {
+  let info = ns->NS.getServer(~host=target)
 
   switch (info.hackDifficulty, info.minDifficulty) {
   | (Some(security), Some(minSecurity)) => {
-      let toWeaken = security -. minSecurity
+      let toWeaken = weakenSecurity->Option.getOr(security -. minSecurity)
 
       if toWeaken > 0.0 {
-        let singleWeaken = ns->NS.weakenAnalyze(1, ~cores=ns->Helpers.getHomeCores)
+        let singleWeaken = ns->NS.weakenAnalyze(1, ~cores)
 
-        Ok((toWeaken /. singleWeaken)->Js.Math.ceil_int)
+        if singleWeaken > 0.0 {
+          Ok(((toWeaken +. 0.001) /. singleWeaken)->Js.Math.ceil_int)
+        } else {
+          Error(#calculationFailure)
+        }
       } else {
         Ok(0)
+      }
+    }
+  | _ => Error(#notHackableServer)
+  }
+}
+
+let growThreads = (ns, target, cores) => {
+  let info = ns->NS.getServer(~host=target)
+
+  switch (info.moneyAvailable, info.moneyMax) {
+  | (Some(money), Some(maxMoney)) => {
+      let toGrow = maxMoney /. money
+
+      if toGrow > 1.0 {
+        let threads = ns->NS.growthAnalyze(target, toGrow +. 0.001, ~cores)
+
+        if threads > 0.0 {
+          Ok(threads->Js.Math.ceil_int)
+        } else {
+          Error(#calculationFailure)
+        }
+      } else {
+        Ok(0)
+      }
+    }
+  | _ => Error(#notHackableServer)
+  }
+}
+
+let hackThreads = (ns, target, ~hackMoney=?) => {
+  let info = ns->NS.getServer(~host=target)
+
+  switch info.moneyAvailable {
+  | Some(money) => {
+      let toHack = hackMoney->Option.getOr(money *. 0.5)
+
+      if toHack >= 0.0 && toHack <= money {
+        let threads = ns->NS.hackAnalyzeThreads(target, toHack)
+
+        if threads >= 0.0 {
+          Ok(threads->Js.Math.ceil_int)
+        } else {
+          Error(#calculationFailure)
+        }
+      } else {
+        Error(#calculationFailure)
       }
     }
   | _ => Error(#notHackableServer)

@@ -1,3 +1,11 @@
+type error = [
+  | #failedToUploadFile
+  | #fileNotExist
+  | #noEnoughRAM
+  | #failedToExecScript
+  | #invalidThreads
+]
+
 /** Crawls all servers and returns the set of servers.
 
  If `excludePurchasedServers` is true then returns servers excluding purchased servers.
@@ -41,8 +49,6 @@ let crawlServers = (ns, ~excludePurchasedServers=false, ~excludeHome=true) => {
 let getRootAccess = (ns, host) => {
   let info = ns->NS.getServer(~host)
   if info.hasAdminRights {
-    ns->NS.print(`INFO: server ${host} has root access already`)
-
     true
   } else {
     switch (info.openPortCount, info.numOpenPortsRequired) {
@@ -96,8 +102,6 @@ let getRootAccess = (ns, host) => {
 
             let info = ns->NS.getServer(~host)
             if info.hasAdminRights {
-              ns->NS.print(`SUCCESS: server ${host} has root access now`)
-
               true
             } else {
               ns->NS.print(`ERROR: failed to get root access on server ${host}`)
@@ -110,20 +114,68 @@ let getRootAccess = (ns, host) => {
             false
           }
         } else {
-          ns->NS.print(
-            `ERROR: failed to get root access on server ${host} because of no enough ports opened`,
-          )
-
           false
         }
       }
-    | _ => {
-        ns->NS.print(`ERROR: no ports to open on server ${host}`)
-
-        false
-      }
+    | _ => false
     }
   }
 }
 
-let getHomeCores = ns => (ns->NS.getHomeServer).cpuCores
+let uploadFile = (ns, server, file) =>
+  if ns->NS.fileExists(file) {
+    if ns->NS.scp(file, server) {
+      true
+    } else {
+      ns->NS.print(`ERROR: failed to upload file ${file} to server ${server}`)
+
+      false
+    }
+  } else {
+    ns->NS.print(`ERROR: file ${file} does not exist on current server ${ns->NS.getHostname}`)
+
+    false
+  }
+
+let execScript = (ns, server, script, ~threads=?, ~upload=true, ~args=?) => {
+  let upload = if server === ns->NS.getHostname {
+    false
+  } else {
+    upload
+  }
+  let args = args->Option.getOr([])->Array.map(arg => NSTypes.StringArg(arg))
+
+  if upload && !(ns->uploadFile(server, script)) {
+    Error(#failedToUploadFile)
+  } else {
+    let scriptRAM = ns->NS.getScriptRam(script, ~host=server)
+
+    if scriptRAM > 0.0 {
+      let exec = threads =>
+        if threads >= 1 {
+          let pid = ns->NS.exec(script, server, ~threads, ~args)
+          if pid !== 0 {
+            Ok((pid, threads, scriptRAM *. threads->Int.toFloat))
+          } else {
+            Error(#failedToExecScript)
+          }
+        } else {
+          Error(#invalidThreads)
+        }
+
+      switch threads {
+      | Some(threads) => exec(threads)
+      | None => {
+          let ram = ns->NS.getServerMaxRam(server) -. ns->NS.getServerUsedRam(server)
+          if ram > 0.0 && ram >= scriptRAM {
+            exec((ram /. scriptRAM)->Js.Math.floor_int)
+          } else {
+            Error(#noEnoughRAM)
+          }
+        }
+      }
+    } else {
+      Error(#fileNotExist)
+    }
+  }
+}

@@ -8,13 +8,20 @@
   "license": "GPL-3.0-only",
   "author": "orzogc",
   "scripts": {
-    "build": "rescript",
+    "es:build": "node scripts/build.js",
+    "es:watch": "node scripts/watch.js",
+    "res:build": "rescript",
+    "res:dev": "rescript build -w",
+    "build": "rescript && node scripts/build.js",
     "clean": "rescript clean",
-    "dev": "rescript build -w"
+    "dev": "concurrently \"rescript build -w\" \"node scripts/watch.js\"",
+    "devAndSync": "concurrently \"rescript build -w\" \"node scripts/watch.js\" \"bitburner-filesync\"",
+    "sync": "bitburner-filesync"
   },
   "type": "module",
   "dependencies": {
     "@rescript/core": "^0.6.0",
+    "concurrently": "^8.2.2",
     "rescript": "^11.0.0-rc.6"
   },
   "devDependencies": {

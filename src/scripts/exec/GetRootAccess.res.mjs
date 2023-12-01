@@ -3,6 +3,14 @@
 import * as Flags from "../lib/Flags.res.mjs";
 import * as Helpers from "../lib/Helpers.res.mjs";
 
+function rootAccess(ns, server) {
+  if (Helpers.getRootAccess(ns, server)) {
+    ns.print("SUCCESS: server " + server + " has root access now");
+  } else {
+    ns.print("ERROR: failed to get root access on server " + server);
+  }
+}
+
 async function main(ns) {
   var match = Flags.getFlagsExn(ns, Flags.onlyHelpSchema);
   var args = match[1];
@@ -10,11 +18,11 @@ async function main(ns) {
     ns.tprint("Tries to get root access on servers.\nArguments are servers' hostnames. If no arguments, tries to get root access on all servers.");
   } else if (args.length > 0) {
     args.forEach(function (s) {
-          Helpers.getRootAccess(ns, s);
+          rootAccess(ns, s);
         });
   } else {
     Helpers.crawlServers(ns, undefined, undefined).forEach(function (s) {
-          Helpers.getRootAccess(ns, s);
+          rootAccess(ns, s);
         });
   }
 }
@@ -29,6 +37,7 @@ function autocomplete(data, param) {
 }
 
 export {
+  rootAccess ,
   main ,
   autocomplete ,
 }
