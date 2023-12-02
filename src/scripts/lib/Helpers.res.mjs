@@ -39,8 +39,8 @@ function crawlServers(ns, excludePurchasedServersOpt, excludeHomeOpt) {
   return servers;
 }
 
-function getRootAccess(ns, host) {
-  var info = ns.getServer(host);
+function getRootAccess(ns, target) {
+  var info = ns.getServer(target);
   if (info.hasAdminRights) {
     return true;
   }
@@ -54,37 +54,37 @@ function getRootAccess(ns, host) {
   }
   if (match < match$1) {
     if (!info.sshPortOpen && ns.fileExists("BruteSSH.exe", "home")) {
-      ns.brutessh(host);
+      ns.brutessh(target);
     }
-    var info$1 = ns.getServer(host);
+    var info$1 = ns.getServer(target);
     if (info$1.openPortCount < info$1.numOpenPortsRequired && !info$1.ftpPortOpen && ns.fileExists("FTPCrack.exe", "home")) {
-      ns.ftpcrack(host);
+      ns.ftpcrack(target);
     }
-    var info$2 = ns.getServer(host);
+    var info$2 = ns.getServer(target);
     if (info$2.openPortCount < info$2.numOpenPortsRequired && !info$2.smtpPortOpen && ns.fileExists("relaySMTP.exe", "home")) {
-      ns.relaysmtp(host);
+      ns.relaysmtp(target);
     }
-    var info$3 = ns.getServer(host);
+    var info$3 = ns.getServer(target);
     if (info$3.openPortCount < info$3.numOpenPortsRequired && !info$3.httpPortOpen && ns.fileExists("HTTPWorm.exe", "home")) {
-      ns.httpworm(host);
+      ns.httpworm(target);
     }
-    var info$4 = ns.getServer(host);
+    var info$4 = ns.getServer(target);
     if (info$4.openPortCount < info$4.numOpenPortsRequired && !info$4.sqlPortOpen && ns.fileExists("SQLInject.exe", "home")) {
-      ns.sqlinject(host);
+      ns.sqlinject(target);
     }
     
   }
-  var info$5 = ns.getServer(host);
+  var info$5 = ns.getServer(target);
   if (info$5.openPortCount < info$5.numOpenPortsRequired) {
     return false;
   }
   if (ns.fileExists("NUKE.exe", "home")) {
-    ns.nuke(host);
-    var info$6 = ns.getServer(host);
+    ns.nuke(target);
+    var info$6 = ns.getServer(target);
     if (info$6.hasAdminRights) {
       return true;
     } else {
-      ns.print("ERROR: failed to get root access on server " + host);
+      ns.print("ERROR: failed to get root access on server " + target);
       return false;
     }
   }
@@ -92,12 +92,12 @@ function getRootAccess(ns, host) {
   return false;
 }
 
-function uploadFile(ns, server, file) {
+function uploadFile(ns, target, file) {
   if (ns.fileExists(file, undefined)) {
-    if (ns.scp(file, server, undefined)) {
+    if (target === ns.getHostname() || ns.scp(file, target, undefined)) {
       return true;
     } else {
-      ns.print("ERROR: failed to upload file " + file + " to server " + server);
+      ns.print("ERROR: failed to upload file " + file + " to server " + target);
       return false;
     }
   } else {
@@ -106,19 +106,18 @@ function uploadFile(ns, server, file) {
   }
 }
 
-function execScript(ns, server, script, threads, uploadOpt, args) {
+function execScript(ns, target, script, threads, percentage, uploadOpt, args) {
   var upload = uploadOpt !== undefined ? uploadOpt : true;
-  var upload$1 = server === ns.getHostname() ? false : upload;
   var args$1 = Core__Option.getOr(args, []).map(function (arg) {
         return arg;
       });
-  if (upload$1 && !uploadFile(ns, server, script)) {
+  if (upload && !uploadFile(ns, target, script)) {
     return {
             TAG: "Error",
             _0: "failedToUploadFile"
           };
   }
-  var scriptRAM = ns.getScriptRam(script, server);
+  var scriptRAM = ns.getScriptRam(script, target);
   if (scriptRAM <= 0.0) {
     return {
             TAG: "Error",
@@ -134,7 +133,7 @@ function execScript(ns, server, script, threads, uploadOpt, args) {
     }
     var pid = Caml_splice_call.spliceObjApply(ns, "exec", [
           script,
-          server,
+          target,
           threads,
           args$1
         ]);
@@ -155,9 +154,23 @@ function execScript(ns, server, script, threads, uploadOpt, args) {
     }
   };
   if (threads !== undefined) {
-    return exec(threads);
+    if (percentage !== undefined) {
+      return {
+              TAG: "Error",
+              _0: "threadsAndPercentageSpecified"
+            };
+    } else {
+      return exec(threads);
+    }
   }
-  var ram = ns.getServerMaxRam(server) - ns.getServerUsedRam(server);
+  var percentage$1 = Core__Option.getOr(percentage, 1.0);
+  if (!(percentage$1 > 0.0 && percentage$1 <= 1.0)) {
+    return {
+            TAG: "Error",
+            _0: "invalidPercentage"
+          };
+  }
+  var ram = (ns.getServerMaxRam(target) - ns.getServerUsedRam(target)) * percentage$1;
   if (ram > 0.0 && ram >= scriptRAM) {
     return exec(Js_math.floor_int(ram / scriptRAM));
   } else {

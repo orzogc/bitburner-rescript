@@ -1,10 +1,5 @@
-type error = [
-  | #failedToUploadFile
-  | #fileNotExist
-  | #noEnoughRAM
-  | #failedToExecScript
-  | #invalidThreads
-]
+@scope("Number") @val
+external isInteger: float => bool = "isInteger"
 
 /** Crawls all servers and returns the set of servers.
 
@@ -46,8 +41,8 @@ let crawlServers = (ns, ~excludePurchasedServers=false, ~excludeHome=true) => {
 
  Returns whether gets the root access.
  */
-let getRootAccess = (ns, host) => {
-  let info = ns->NS.getServer(~host)
+let getRootAccess = (ns, target) => {
+  let info = ns->NS.getServer(~host=target)
   if info.hasAdminRights {
     true
   } else {
@@ -55,56 +50,56 @@ let getRootAccess = (ns, host) => {
     | (Some(openPortCount), Some(numOpenPortsRequired)) => {
         if openPortCount < numOpenPortsRequired {
           if !info.sshPortOpen && ns->NS.fileExists("BruteSSH.exe", ~host="home") {
-            ns->NS.brutessh(host)
+            ns->NS.brutessh(target)
           }
 
-          let info = ns->NS.getServer(~host)
+          let info = ns->NS.getServer(~host=target)
           if (
             info.openPortCount->Option.getUnsafe < info.numOpenPortsRequired->Option.getUnsafe &&
             !info.ftpPortOpen &&
             ns->NS.fileExists("FTPCrack.exe", ~host="home")
           ) {
-            ns->NS.ftpcrack(host)
+            ns->NS.ftpcrack(target)
           }
 
-          let info = ns->NS.getServer(~host)
+          let info = ns->NS.getServer(~host=target)
           if (
             info.openPortCount->Option.getUnsafe < info.numOpenPortsRequired->Option.getUnsafe &&
             !info.smtpPortOpen &&
             ns->NS.fileExists("relaySMTP.exe", ~host="home")
           ) {
-            ns->NS.relaysmtp(host)
+            ns->NS.relaysmtp(target)
           }
 
-          let info = ns->NS.getServer(~host)
+          let info = ns->NS.getServer(~host=target)
           if (
             info.openPortCount->Option.getUnsafe < info.numOpenPortsRequired->Option.getUnsafe &&
             !info.httpPortOpen &&
             ns->NS.fileExists("HTTPWorm.exe", ~host="home")
           ) {
-            ns->NS.httpworm(host)
+            ns->NS.httpworm(target)
           }
 
-          let info = ns->NS.getServer(~host)
+          let info = ns->NS.getServer(~host=target)
           if (
             info.openPortCount->Option.getUnsafe < info.numOpenPortsRequired->Option.getUnsafe &&
             !info.sqlPortOpen &&
             ns->NS.fileExists("SQLInject.exe", ~host="home")
           ) {
-            ns->NS.sqlinject(host)
+            ns->NS.sqlinject(target)
           }
         }
 
-        let info = ns->NS.getServer(~host)
+        let info = ns->NS.getServer(~host=target)
         if info.openPortCount->Option.getUnsafe >= info.numOpenPortsRequired->Option.getUnsafe {
           if ns->NS.fileExists("NUKE.exe", ~host="home") {
-            ns->NS.nuke(host)
+            ns->NS.nuke(target)
 
-            let info = ns->NS.getServer(~host)
+            let info = ns->NS.getServer(~host=target)
             if info.hasAdminRights {
               true
             } else {
-              ns->NS.print(`ERROR: failed to get root access on server ${host}`)
+              ns->NS.print(`ERROR: failed to get root access on server ${target}`)
 
               false
             }
@@ -122,12 +117,12 @@ let getRootAccess = (ns, host) => {
   }
 }
 
-let uploadFile = (ns, server, file) =>
+let uploadFile = (ns, target, file) =>
   if ns->NS.fileExists(file) {
-    if ns->NS.scp(file, server) {
+    if target === ns->NS.getHostname || ns->NS.scp(file, target) {
       true
     } else {
-      ns->NS.print(`ERROR: failed to upload file ${file} to server ${server}`)
+      ns->NS.print(`ERROR: failed to upload file ${file} to server ${target}`)
 
       false
     }
@@ -137,23 +132,28 @@ let uploadFile = (ns, server, file) =>
     false
   }
 
-let execScript = (ns, server, script, ~threads=?, ~upload=true, ~args=?) => {
-  let upload = if server === ns->NS.getHostname {
-    false
-  } else {
-    upload
-  }
+type execScriptError = [
+  | #failedToUploadFile
+  | #fileNotExist
+  | #noEnoughRAM
+  | #failedToExecScript
+  | #invalidThreads
+  | #invalidPercentage
+  | #threadsAndPercentageSpecified
+]
+
+let execScript = (ns, target, script, ~threads=?, ~percentage=?, ~upload=true, ~args=?) => {
   let args = args->Option.getOr([])->Array.map(arg => NSTypes.StringArg(arg))
 
-  if upload && !(ns->uploadFile(server, script)) {
+  if upload && !(ns->uploadFile(target, script)) {
     Error(#failedToUploadFile)
   } else {
-    let scriptRAM = ns->NS.getScriptRam(script, ~host=server)
+    let scriptRAM = ns->NS.getScriptRam(script, ~host=target)
 
     if scriptRAM > 0.0 {
       let exec = threads =>
         if threads >= 1 {
-          let pid = ns->NS.exec(script, server, ~threads, ~args)
+          let pid = ns->NS.exec(script, target, ~threads, ~args)
           if pid !== 0 {
             Ok((pid, threads, scriptRAM *. threads->Int.toFloat))
           } else {
@@ -163,16 +163,24 @@ let execScript = (ns, server, script, ~threads=?, ~upload=true, ~args=?) => {
           Error(#invalidThreads)
         }
 
-      switch threads {
-      | Some(threads) => exec(threads)
-      | None => {
-          let ram = ns->NS.getServerMaxRam(server) -. ns->NS.getServerUsedRam(server)
-          if ram > 0.0 && ram >= scriptRAM {
-            exec((ram /. scriptRAM)->Js.Math.floor_int)
+      switch (threads, percentage) {
+      | (Some(threads), None) => exec(threads)
+      | (None, Some(_)) | (None, None) => {
+          let percentage = percentage->Option.getOr(1.0)
+
+          if percentage > 0.0 && percentage <= 1.0 {
+            let ram =
+              (ns->NS.getServerMaxRam(target) -. ns->NS.getServerUsedRam(target)) *. percentage
+            if ram > 0.0 && ram >= scriptRAM {
+              exec((ram /. scriptRAM)->Js.Math.floor_int)
+            } else {
+              Error(#noEnoughRAM)
+            }
           } else {
-            Error(#noEnoughRAM)
+            Error(#invalidPercentage)
           }
         }
+      | (Some(_), Some(_)) => Error(#threadsAndPercentageSpecified)
       }
     } else {
       Error(#fileNotExist)

@@ -10,6 +10,8 @@ let argsToStrings = args =>
     }
   )
 
+let argsHasHelp = args => args->Array.some(arg => arg === "--help")
+
 /** Converts schema to flags.
 
  The First argument is a function to get flags.

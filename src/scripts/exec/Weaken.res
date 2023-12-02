@@ -3,7 +3,7 @@ let main: NS.main = async ns => {
 
   if flags["help"] {
     ns->NS.tprint("Weakens the server continuously.
-The first argument should be the target server's hostname.")
+The first argument should be the target server's hostname. If not specified, defaults to foodnstuff")
   } else {
     let server = args[0]->Option.getOr("foodnstuff")
 
@@ -13,12 +13,18 @@ The first argument should be the target server's hostname.")
   }
 }
 
-let autocomplete: NS.autocomplete = (data, _) => {
-  let (flags, _) = Flags.schemaToFlagsExn(data.flags, Flags.onlyHelpSchema)
+let autocomplete: NS.autocomplete = (data, args) => {
+  let args = args->Flags.argsToStrings
 
-  if flags["help"] {
+  if args->Flags.argsHasHelp {
     []
   } else {
-    data.servers
+    Flags.schemaToFlagsExn(data.flags, Flags.onlyHelpSchema)->ignore
+
+    if args->Array.length <= 1 {
+      data.servers
+    } else {
+      []
+    }
   }
 }

@@ -35,12 +35,20 @@ If other arguments exist, Kills all running scripts on servers which hostname in
   }
 }
 
-let autocomplete: NS.autocomplete = (data, _) => {
-  let (flags, _) = Flags.schemaToFlagsExn(data.flags, schema)
+let autocomplete: NS.autocomplete = (data, args) => {
+  let args = args->Flags.argsToStrings
 
-  if flags["help"] || flags["onlyPurchasedServers"] || flags["excludePurchasedServers"] {
+  if (
+    args->Array.some(arg =>
+      arg === "--help" || arg === "--onlyPurchasedServers" || arg === "--excludePurchasedServers"
+    )
+  ) {
     []
   } else {
+    if args->Array.length <= 1 {
+      Flags.schemaToFlagsExn(data.flags, schema)->ignore
+    }
+
     data.servers
   }
 }

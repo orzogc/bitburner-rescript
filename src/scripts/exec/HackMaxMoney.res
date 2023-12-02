@@ -2,16 +2,7 @@ open NSTypes
 
 type action = Weaken | Grow | Hack
 
-type scriptInfo = {
-  //host: host,
-  target: host,
-  /* action: action,
-  script: file,
-  arguments: array<string>,
-  singleThreadRam: ram,
-  pid: pid,
-  threads: threads, */
-}
+type scriptInfo = {target: host}
 
 type serverInfo = {
   host: host,
@@ -122,7 +113,7 @@ let updateTargets = (ns, info: server) =>
     info.moneyAvailable,
   ) {
   | (Some(hacking), Some(minSecurity), Some(security), Some(maxMoney), Some(money)) =>
-    if ns->NS.getHackingLevel / 2 >= hacking && maxMoney > 0.0 {
+    if info.hasAdminRights && ns->NS.getHackingLevel / 2 >= hacking && maxMoney > 0.0 {
       if (
         !(targets->Map.has(info.hostname)) &&
         !(scripts->Map.values->Iterator.toArray->Array.some(t => t.target === info.hostname)) &&
@@ -363,7 +354,8 @@ let main: NS.main = async ns => {
 
   if flags["help"] {
     ns->NS.tprint("Hacks max money from servers.
---includePurchasedServers : Includes purchased servers.")
+--includePurchasedServers : Includes purchased servers.
+--includeHome : Includes home server.")
   } else {
     ns->NS.disableLog("getHackingLevel")
     ns->NS.disableLog("scan")
@@ -391,8 +383,10 @@ let main: NS.main = async ns => {
   }
 }
 
-let autocomplete: NS.autocomplete = (data, _) => {
-  Flags.schemaToFlagsExn(data.flags, schema)->ignore
+let autocomplete: NS.autocomplete = (data, args) => {
+  if !(args->Flags.argsToStrings->Flags.argsHasHelp) {
+    Flags.schemaToFlagsExn(data.flags, schema)->ignore
+  }
 
   []
 }

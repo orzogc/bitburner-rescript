@@ -17,12 +17,12 @@ Arguments are servers' hostnames. If no arguments, tries to get root access on a
   }
 }
 
-let autocomplete: NS.autocomplete = (data, _) => {
-  let (flags, _) = Flags.schemaToFlagsExn(data.flags, Flags.onlyHelpSchema)
-
-  if flags["help"] {
+let autocomplete: NS.autocomplete = (data, args) => {
+  if args->Flags.argsToStrings->Flags.argsHasHelp {
     []
   } else {
+    Flags.schemaToFlagsExn(data.flags, Flags.onlyHelpSchema)->ignore
+
     data.servers
   }
 }

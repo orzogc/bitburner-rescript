@@ -11,21 +11,23 @@
     "es:build": "node scripts/build.js",
     "es:watch": "node scripts/watch.js",
     "res:build": "rescript",
+    "res:clean": "rescript clean",
     "res:dev": "rescript build -w",
     "build": "rescript && node scripts/build.js",
-    "clean": "rescript clean",
+    "clean": "rescript clean && node scripts/clean.js",
     "dev": "concurrently \"rescript build -w\" \"node scripts/watch.js\"",
-    "devAndSync": "concurrently \"rescript build -w\" \"node scripts/watch.js\" \"bitburner-filesync\"",
+    "devSync": "concurrently \"rescript build -w\" \"node scripts/watch.js\" \"bitburner-filesync\"",
     "sync": "bitburner-filesync"
   },
   "type": "module",
   "dependencies": {
     "@rescript/core": "^0.6.0",
-    "concurrently": "^8.2.2",
     "rescript": "^11.0.0-rc.6"
   },
   "devDependencies": {
     "bitburner-filesync": "1.2.0-beta4",
+    "cheap-watch": "^1.0.4",
+    "concurrently": "^8.2.2",
     "esbuild": "^0.19.8"
   }
 }

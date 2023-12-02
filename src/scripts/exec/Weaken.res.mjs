@@ -6,7 +6,7 @@ import * as Core__Option from "@rescript/core/src/Core__Option.res.mjs";
 async function main(ns) {
   var match = Flags.getFlagsExn(ns, Flags.onlyHelpSchema);
   if (match[0].help) {
-    ns.tprint("Weakens the server continuously.\nThe first argument should be the target server's hostname.");
+    ns.tprint("Weakens the server continuously.\nThe first argument should be the target server's hostname. If not specified, defaults to foodnstuff");
     return ;
   }
   var server = Core__Option.getOr(match[1][0], "foodnstuff");
@@ -15,12 +15,17 @@ async function main(ns) {
   };
 }
 
-function autocomplete(data, param) {
-  var match = Flags.schemaToFlagsExn(data.flags, Flags.onlyHelpSchema);
-  if (match[0].help) {
+function autocomplete(data, args) {
+  var args$1 = Flags.argsToStrings(args);
+  if (Flags.argsHasHelp(args$1)) {
     return [];
   } else {
-    return data.servers;
+    Flags.schemaToFlagsExn(data.flags, Flags.onlyHelpSchema);
+    if (args$1.length <= 1) {
+      return data.servers;
+    } else {
+      return [];
+    }
   }
 }
 

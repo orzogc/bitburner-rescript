@@ -27,11 +27,11 @@ async function main(ns) {
   }
 }
 
-function autocomplete(data, param) {
-  var match = Flags.schemaToFlagsExn(data.flags, Flags.onlyHelpSchema);
-  if (match[0].help) {
+function autocomplete(data, args) {
+  if (Flags.argsHasHelp(Flags.argsToStrings(args))) {
     return [];
   } else {
+    Flags.schemaToFlagsExn(data.flags, Flags.onlyHelpSchema);
     return data.servers;
   }
 }

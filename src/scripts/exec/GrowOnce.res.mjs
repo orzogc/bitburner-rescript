@@ -16,12 +16,17 @@ async function main(ns) {
   }
 }
 
-function autocomplete(data, param) {
-  var match = Flags.schemaToFlagsExn(data.flags, Flags.onlyHelpSchema);
-  if (match[0].help) {
+function autocomplete(data, args) {
+  var args$1 = Flags.argsToStrings(args);
+  if (Flags.argsHasHelp(args$1)) {
     return [];
   } else {
-    return data.servers;
+    Flags.schemaToFlagsExn(data.flags, Flags.onlyHelpSchema);
+    if (args$1.length <= 1) {
+      return data.servers;
+    } else {
+      return [];
+    }
   }
 }
 

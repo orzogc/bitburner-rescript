@@ -39,12 +39,16 @@ async function main(ns) {
   }
 }
 
-function autocomplete(data, param) {
-  var match = Flags.schemaToFlagsExn(data.flags, schema);
-  var flags = match[0];
-  if (flags.help || flags.onlyPurchasedServers || flags.excludePurchasedServers) {
+function autocomplete(data, args) {
+  var args$1 = Flags.argsToStrings(args);
+  if (args$1.some(function (arg) {
+          return arg === "--help" || arg === "--onlyPurchasedServers" ? true : arg === "--excludePurchasedServers";
+        })) {
     return [];
   } else {
+    if (args$1.length <= 1) {
+      Flags.schemaToFlagsExn(data.flags, schema);
+    }
     return data.servers;
   }
 }

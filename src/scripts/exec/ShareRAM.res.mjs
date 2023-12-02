@@ -5,7 +5,7 @@ import * as Flags from "../lib/Flags.res.mjs";
 async function main(ns) {
   var match = Flags.getFlagsExn(ns, Flags.onlyHelpSchema);
   if (match[0].help) {
-    ns.tprint("Share RAM to factions.");
+    ns.tprint("Share RAM to factions continuously.");
     return ;
   }
   while(true) {
@@ -13,7 +13,15 @@ async function main(ns) {
   };
 }
 
+function autocomplete(data, args) {
+  if (!Flags.argsHasHelp(Flags.argsToStrings(args))) {
+    Flags.schemaToFlagsExn(data.flags, Flags.onlyHelpSchema);
+  }
+  return [];
+}
+
 export {
   main ,
+  autocomplete ,
 }
 /* No side effect */

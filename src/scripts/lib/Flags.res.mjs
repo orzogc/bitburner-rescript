@@ -20,6 +20,12 @@ function argsToStrings(args) {
             });
 }
 
+function argsHasHelp(args) {
+  return args.some(function (arg) {
+              return arg === "--help";
+            });
+}
+
 function schemaToFlagsExn(getFlags, obj) {
   var schema = Object.keys(obj).map(function (key) {
         var value = obj[key];
@@ -92,6 +98,7 @@ function getFlagsExn(ns, obj) {
 export {
   onlyHelpSchema ,
   argsToStrings ,
+  argsHasHelp ,
   schemaToFlagsExn ,
   getFlagsExn ,
 }

@@ -107,7 +107,7 @@ function updateTargets(ns, info) {
   var match$2 = info.hackDifficulty;
   var match$3 = info.moneyMax;
   var match$4 = info.moneyAvailable;
-  if (match !== undefined && match$1 !== undefined && match$2 !== undefined && match$3 !== undefined && match$4 !== undefined && (ns.getHackingLevel() / 2 | 0) >= match && match$3 > 0.0) {
+  if (match !== undefined && match$1 !== undefined && match$2 !== undefined && match$3 !== undefined && match$4 !== undefined && info.hasAdminRights && (ns.getHackingLevel() / 2 | 0) >= match && match$3 > 0.0) {
     if (!targets.has(info.hostname) && !Array.from(scripts.values()).some(function (t) {
             return t.target === info.hostname;
           }) && !todoTasks.some(function (t) {
@@ -233,7 +233,7 @@ function runTaskExn(ns) {
                     var fullThreads = Js_math.floor_int(ram / scriptRAM);
                     var exec = (function(ram,server){
                     return function exec(threads) {
-                      var e = Helpers.execScript(ns, server.host, script, threads, true, [task.target]);
+                      var e = Helpers.execScript(ns, server.host, script, threads, undefined, true, [task.target]);
                       if (e.TAG === "Ok") {
                         var match = e._0;
                         scripts.set(match[0], {
@@ -310,7 +310,7 @@ async function main(ns) {
   var match = Flags.getFlagsExn(ns, schema);
   var flags = match[0];
   if (flags.help) {
-    ns.tprint("Hacks max money from servers.\n--includePurchasedServers : Includes purchased servers.");
+    ns.tprint("Hacks max money from servers.\n--includePurchasedServers : Includes purchased servers.\n--includeHome : Includes home server.");
     return ;
   }
   ns.disableLog("getHackingLevel");
@@ -332,8 +332,10 @@ async function main(ns) {
   };
 }
 
-function autocomplete(data, param) {
-  Flags.schemaToFlagsExn(data.flags, schema);
+function autocomplete(data, args) {
+  if (!Flags.argsHasHelp(Flags.argsToStrings(args))) {
+    Flags.schemaToFlagsExn(data.flags, schema);
+  }
   return [];
 }
 
