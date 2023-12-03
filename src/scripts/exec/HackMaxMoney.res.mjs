@@ -286,7 +286,7 @@ function runTaskExn(ns) {
               ns.print("INFO: start to grow server " + task.target);
               return runCores(coresNum, 0, (function (cores) {
                             return runServers(cores, 0, growScript, growScriptRam, (function (host, cores) {
-                                          return Server.growThreads(ns, host, cores);
+                                          return Server.growThreads(ns, host, cores, undefined);
                                         }));
                           }));
           case "Hack" :
@@ -315,6 +315,7 @@ async function main(ns) {
   }
   ns.disableLog("getHackingLevel");
   ns.disableLog("scan");
+  ns.disableLog("scp");
   while(true) {
     var allServers = Helpers.crawlServers(ns, !flags.includePurchasedServers, !flags.includeHome);
     clearServers();

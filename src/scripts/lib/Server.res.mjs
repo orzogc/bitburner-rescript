@@ -40,7 +40,7 @@ function weakenThreads(ns, target, cores, weakenSecurity) {
   }
 }
 
-function growThreads(ns, target, cores) {
+function growThreads(ns, target, cores, multiplier) {
   var info = ns.getServer(target);
   var match = info.moneyAvailable;
   var match$1 = info.moneyMax;
@@ -56,7 +56,13 @@ function growThreads(ns, target, cores) {
             _0: "notHackableServer"
           };
   }
-  var toGrow = match$1 / match;
+  if (match <= 0.0) {
+    return {
+            TAG: "Ok",
+            _0: 1000
+          };
+  }
+  var toGrow = Core__Option.getOr(multiplier, match$1 / match);
   if (toGrow <= 1.0) {
     return {
             TAG: "Ok",

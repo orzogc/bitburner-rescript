@@ -22,7 +22,7 @@ let main: NS.main = async ns => {
 --count int : How many servers to buy. If not specified, buys servers as many as possible.
 --prefix string : Servers' hostname prefix. Defaults to 'myserver'.
 --continuous : Buys servers continuously.
---dry : Only prints the info of buying servers, not actually buying.")
+--dry : Only prints the info of buying servers, does not actually buy.")
   } else if (
     !(ram->Helpers.isInteger && ram > 0.0 && Math.log2(ram)->Helpers.isInteger && ram <= maxRam)
   ) {

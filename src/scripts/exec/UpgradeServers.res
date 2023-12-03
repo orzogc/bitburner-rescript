@@ -13,7 +13,7 @@ let main: NS.main = async ns => {
   if flags["help"] {
     ns->NS.tprint("Upgrades purchased servers.
 --ram int : Servers' RAM which upgrades to, must be a power of 2.
---dry : Only prints the info of upgrading servers, not actually upgrading.")
+--dry : Only prints the info of upgrading servers, does not actually upgrade.")
   } else if (
     !(ram->Helpers.isInteger && ram > 0.0 && Math.log2(ram)->Helpers.isInteger && ram <= maxRam)
   ) {

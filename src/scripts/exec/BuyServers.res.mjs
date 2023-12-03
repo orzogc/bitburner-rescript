@@ -21,7 +21,7 @@ async function main(ns) {
   var dry = flags.dry;
   var maxRam = ns.getPurchasedServerMaxRam();
   if (flags.help) {
-    ns.tprint("Buys servers.\n--ram int : Servers' RAM, must be a power of 2.\n--count int : How many servers to buy. If not specified, buys servers as many as possible.\n--prefix string : Servers' hostname prefix. Defaults to 'myserver'.\n--continuous : Buys servers continuously.\n--dry : Only prints the info of buying servers, not actually buying.");
+    ns.tprint("Buys servers.\n--ram int : Servers' RAM, must be a power of 2.\n--count int : How many servers to buy. If not specified, buys servers as many as possible.\n--prefix string : Servers' hostname prefix. Defaults to 'myserver'.\n--continuous : Buys servers continuously.\n--dry : Only prints the info of buying servers, does not actually buy.");
     return ;
   }
   if (Number.isInteger(ram) && ram > 0.0 && Number.isInteger(Math.log2(ram)) && ram <= maxRam) {

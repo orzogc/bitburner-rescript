@@ -16,7 +16,7 @@ async function main(ns) {
   var dry = flags.dry;
   var maxRam = ns.getPurchasedServerMaxRam();
   if (flags.help) {
-    ns.tprint("Upgrades purchased servers.\n--ram int : Servers' RAM which upgrades to, must be a power of 2.\n--dry : Only prints the info of upgrading servers, not actually upgrading.");
+    ns.tprint("Upgrades purchased servers.\n--ram int : Servers' RAM which upgrades to, must be a power of 2.\n--dry : Only prints the info of upgrading servers, does not actually upgrade.");
     return ;
   }
   if (Number.isInteger(ram) && ram > 0.0 && Number.isInteger(Math.log2(ram)) && ram <= maxRam) {

@@ -23,12 +23,13 @@ let weakenThreads = (ns, target, cores, ~weakenSecurity=?) => {
   }
 }
 
-let growThreads = (ns, target, cores) => {
+let growThreads = (ns, target, cores, ~multiplier=?) => {
   let info = ns->NS.getServer(~host=target)
 
   switch (info.moneyAvailable, info.moneyMax) {
-  | (Some(money), Some(maxMoney)) => {
-      let toGrow = maxMoney /. money
+  | (Some(money), Some(maxMoney)) =>
+    if money > 0.0 {
+      let toGrow = multiplier->Option.getOr(maxMoney /. money)
 
       if toGrow > 1.0 {
         let threads = ns->NS.growthAnalyze(target, toGrow +. 0.001, ~cores)
@@ -41,6 +42,8 @@ let growThreads = (ns, target, cores) => {
       } else {
         Ok(0)
       }
+    } else {
+      Ok(1000)
     }
   | _ => Error(#notHackableServer)
   }

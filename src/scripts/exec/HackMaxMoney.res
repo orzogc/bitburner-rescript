@@ -251,9 +251,6 @@ let runTaskExn = ns => {
                         ~args=[task.target],
                       ) {
                       | Ok((pid, t, r)) => {
-                          /* ns->NS.print(
-                            `INFO: exec script ${script} on server ${server.host} in ${t->Int.toString} threads`,
-                          ) */
                           scripts->Map.set(pid, {target: task.target})
                           tasks->Set.delete(task)->ignore
                           allThreads := allThreads.contents + t
@@ -359,6 +356,7 @@ let main: NS.main = async ns => {
   } else {
     ns->NS.disableLog("getHackingLevel")
     ns->NS.disableLog("scan")
+    ns->NS.disableLog("scp")
 
     while true {
       let allServers =
