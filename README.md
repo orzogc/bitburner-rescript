@@ -4,4 +4,4 @@
 
 ## Bitburner bindings for ReScript
 
-`src/netscript` has some Bitburner bindings for ReScript.
+[`src/netscript`](https://github.com/orzogc/bitburner-rescript/tree/main/src/netscript) contains some Bitburner bindings for ReScript.

@@ -1,7 +1,7 @@
 import CheapWatch from 'cheap-watch';
 import * as esbuild from 'esbuild';
 
-import { buildOptions, dir, filenameRegex, getExecFiles } from './lib.js'
+import { buildOptions, filenameRegex, getExecFiles, scriptsDir } from './lib.js'
 
 let ctx;
 
@@ -18,7 +18,7 @@ async function esbuildWatch() {
 
 await esbuildWatch();
 
-const watch = new CheapWatch({ dir });
+const watch = new CheapWatch({ dir: scriptsDir });
 await watch.init();
 watch.on('+', async ({ path, stats, isNew }) => {
     if (isNew && stats.isFile() && filenameRegex.test(path)) {

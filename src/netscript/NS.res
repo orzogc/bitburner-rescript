@@ -622,6 +622,16 @@ external formatNumber: (
   ~isInteger: bool=?,
 ) => string = "formatNumber"
 
+/** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.formatnumber.md> */
+@send
+external formatMoney: (
+  t,
+  money,
+  ~fractionalDigits: int=?,
+  ~suffixStart: int=?,
+  @as(json`true`) _,
+) => string = "formatNumber"
+
 /** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ns.formatram.md> */
 @send
 external formatRam: (t, float, ~fractionalDigits: int=?) => string = "formatRam"
