@@ -10,6 +10,8 @@ let argsToStrings = args =>
     }
   )
 
+let stringsToArgs = strings => strings->Array.map(s => NSTypes.StringArg(s))
+
 let argsHasHelp = args => args->Array.some(arg => arg === "--help")
 
 /** Converts schema to flags.

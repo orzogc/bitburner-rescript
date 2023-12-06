@@ -67,7 +67,7 @@ let main: NS.main = async ns => {
       let shouldContinue = ref(true)
       let breakOrSleep = async () => {
         if continuous {
-          (await ns->NS.asleep(60000.0))->ignore
+          await ns->Helpers.sleep(60000)
         } else {
           shouldContinue := false
         }
@@ -86,6 +86,10 @@ let main: NS.main = async ns => {
         } else {
           await breakOrSleep()
         }
+      }
+
+      if !continuous {
+        ns->NS.tprint(`SUCCESS: buy ${n.contents->Int.toString} servers`)
       }
     } else {
       ns->NS.tprint(`INFO: no servers to buy`)

@@ -143,7 +143,7 @@ type execScriptError = [
 ]
 
 let execScript = (ns, target, script, ~threads=?, ~percentage=?, ~upload=true, ~args=?) => {
-  let args = args->Option.getOr([])->Array.map(arg => NSTypes.StringArg(arg))
+  let args = args->Option.getOr([])->Flags.stringsToArgs
 
   if upload && !(ns->uploadFile(target, script)) {
     Error(#failedToUploadFile)
@@ -186,4 +186,9 @@ let execScript = (ns, target, script, ~threads=?, ~percentage=?, ~upload=true, ~
       Error(#fileNotExist)
     }
   }
+}
+
+/** Sleep for milliseconds. */
+let sleep = async (ns, milliseconds) => {
+  (await ns->NS.asleep(milliseconds->Int.toFloat))->ignore
 }

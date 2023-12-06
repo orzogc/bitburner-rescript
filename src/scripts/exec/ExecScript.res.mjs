@@ -47,6 +47,9 @@ async function main(ns) {
             )
         );
       servers.forEach(function (server) {
+            if (ns.getServerMaxRam(server) <= 0.0) {
+              return ;
+            }
             var e = Helpers.execScript(ns, server, script, threads$1, percentage$1, upload, args);
             if (e.TAG === "Ok") {
               return ;

@@ -38,6 +38,12 @@ type size = float
 
 type coordinate = float
 
+type chance = float
+
+type weight = float
+
+type factor = float
+
 /** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.scriptarg.md> */
 @unboxed
 type scriptArg = StringArg(string) | NumberArg(float) | BoolArg(bool)
@@ -461,4 +467,176 @@ type autocompleteData = {
   txts: array<string>,
   /** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.autocompletedata.flags.md> */
   flags: getFlags,
+}
+
+/** <https://github.com/bitburner-official/bitburner-src/blob/dev/src/Gang/data/Constants.ts> */
+type gangFactionName =
+  | @as("Slum Snakes") SlumSnakes
+  | Tetrads
+  | @as("The Syndicate") TheSyndicate
+  | @as("The Dark Army") TheDarkArmy
+  | @as("Speakers for the Dead") SpeakersForTheDead
+  | NiteSec
+  | @as("The Black Hand") TheBlackHand
+
+/** <https://github.com/bitburner-official/bitburner-src/blob/dev/src/Faction/Enums.ts> */
+type factionName =
+  | ...gangFactionName
+  | Illuminati
+  | Daedalus
+  | @as("The Covenant") TheCovenant
+  | ECorp
+  | MegaCorp
+  | @as("Bachman & Associates") BachmanAssociates
+  | @as("Blade Industries") BladeIndustries
+  | NWO
+  | @as("Clarke Incorporated") ClarkeIncorporated
+  | @as("OmniTek Incorporated") OmniTekIncorporated
+  | @as("Four Sigma") FourSigma
+  | @as("KuaiGong International") KuaiGongInternational
+  | @as("Fulcrum Secret Technologies") FulcrumSecretTechnologies
+  | BitRunner
+  | Aevum
+  | Chongqing
+  | Ishima
+  | @as("New Tokyo") NewTokyo
+  | @as("Sector-12") Sector12
+  | Volhaven
+  | Silhouette
+  | Netburners
+  | @as("Tian Di Hui") TianDiHui
+  | CyberSec
+  | Bladeburners
+  | @as("Church of the Machine God") ChurchOfTheMachineGod
+  | @as("Shadows of Anarchy") ShadowsOfAnarchy
+
+type respect = float
+
+type power = float
+
+type territory = float
+
+type wantedLevel = float
+
+type ascensionPoints = float
+
+type gangMemberName = string
+
+type gangTaskName = string
+
+type gangEquipmentName = string
+
+/** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.ganggeninfo.md> */
+type gangGenInfo = {
+  faction: gangFactionName,
+  isHacking: bool,
+  moneyGainRate: money,
+  power: power,
+  respect: respect,
+  respectGainRate: respect,
+  respectForNextRecruit: respect,
+  territory: territory,
+  territoryClashChance: chance,
+  wantedLevel: wantedLevel,
+  wantedLevelGainRate: wantedLevel,
+  territoryWarfareEngaged: bool,
+  wantedPenalty: float,
+}
+
+/** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.gangotherinfoobject.md> */
+type gangOtherInfoObject = {
+  power: power,
+  territory: territory,
+}
+
+/** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.gangmemberinfo.md> */
+type gangMemberInfo = {
+  name: gangMemberName,
+  task: gangTaskName,
+  earnedRespect: respect,
+  hack: skillLevel,
+  str: skillLevel,
+  def: skillLevel,
+  dex: skillLevel,
+  agi: skillLevel,
+  cha: skillLevel,
+  hack_exp: experience,
+  str_exp: experience,
+  def_exp: experience,
+  dex_exp: experience,
+  agi_exp: experience,
+  cha_exp: experience,
+  hack_mult: multiplier,
+  str_mult: multiplier,
+  def_mult: multiplier,
+  dex_mult: multiplier,
+  agi_mult: multiplier,
+  cha_mult: multiplier,
+  hack_asc_mult: multiplier,
+  str_asc_mult: multiplier,
+  def_asc_mult: multiplier,
+  dex_asc_mult: multiplier,
+  agi_asc_mult: multiplier,
+  cha_asc_mult: multiplier,
+  hack_asc_points: ascensionPoints,
+  str_asc_points: ascensionPoints,
+  def_asc_points: ascensionPoints,
+  dex_asc_points: ascensionPoints,
+  agi_asc_points: ascensionPoints,
+  cha_asc_points: ascensionPoints,
+  upgrades: array<gangEquipmentName>,
+  augmentations: array<gangEquipmentName>,
+  respectGain: respect,
+  wantedLevelGain: wantedLevel,
+  moneyGain: money,
+}
+
+/** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.gangterritory.md> */
+type gangTerritory = {
+  money: float,
+  respect: float,
+  wanted: float,
+}
+
+/** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.gangtaskstats.md> */
+type gangTaskStats = {
+  name: gangTaskName,
+  desc: string,
+  isHacking: bool,
+  isCombat: bool,
+  baseRespect: respect,
+  baseWanted: wantedLevel,
+  baseMoney: money,
+  hackWeight: weight,
+  strWeight: weight,
+  defWeight: weight,
+  dexWeight: weight,
+  agiWeight: weight,
+  chaWeight: weight,
+  difficulty: float,
+  territory: gangTerritory,
+}
+
+/** <https://github.com/bitburner-official/bitburner-src/blob/dev/src/Gang/GangMemberUpgrade.ts> */
+type gangEquipmentType = Weapon | Armor | Vehicle | Rootkit | Augmentation
+
+/** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.equipmentstats.md> */
+type equipmentStats = {
+  str?: multiplier,
+  def?: multiplier,
+  dex?: multiplier,
+  agi?: multiplier,
+  cha?: multiplier,
+  hack?: multiplier,
+}
+
+/** <https://github.com/bitburner-official/bitburner-src/blob/dev/markdown/bitburner.gangmemberascension.md> */
+type gangMemberAscension = {
+  respect: respect,
+  hack: factor,
+  str: factor,
+  def: factor,
+  dex: factor,
+  agi: factor,
+  cha: factor,
 }

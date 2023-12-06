@@ -358,12 +358,13 @@ let main: NS.main = async ns => {
     ns->NS.disableLog("scan")
     ns->NS.disableLog("scp")
 
+    let allServers =
+      ns->Helpers.crawlServers(
+        ~excludePurchasedServers=!flags["includePurchasedServers"],
+        ~excludeHome=!flags["includeHome"],
+      )
+
     while true {
-      let allServers =
-        ns->Helpers.crawlServers(
-          ~excludePurchasedServers=!flags["includePurchasedServers"],
-          ~excludeHome=!flags["includeHome"],
-        )
       clearServers()
       allServers->Set.forEach(server => {
         ns->Helpers.getRootAccess(server)->ignore
@@ -376,7 +377,7 @@ let main: NS.main = async ns => {
       sortTodoTasksExn()
       ns->runTaskExn
 
-      (await ns->NS.asleep(5000.0))->ignore
+      await ns->Helpers.sleep(5000)
     }
   }
 }

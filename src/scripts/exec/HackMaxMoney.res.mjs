@@ -316,8 +316,8 @@ async function main(ns) {
   ns.disableLog("getHackingLevel");
   ns.disableLog("scan");
   ns.disableLog("scp");
+  var allServers = Helpers.crawlServers(ns, !flags.includePurchasedServers, !flags.includeHome);
   while(true) {
-    var allServers = Helpers.crawlServers(ns, !flags.includePurchasedServers, !flags.includeHome);
     clearServers();
     allServers.forEach(function (server) {
           Helpers.getRootAccess(ns, server);
@@ -329,7 +329,7 @@ async function main(ns) {
     updateTasks(ns);
     sortTodoTasksExn();
     runTaskExn(ns);
-    await ns.asleep(5000.0);
+    await Helpers.sleep(ns, 5000);
   };
 }
 

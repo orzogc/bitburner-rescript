@@ -57,9 +57,12 @@ Threads and percentage must not be used at the same time.")
     }
 
     servers->Set.forEach(server =>
-      switch ns->Helpers.execScript(server, script, ~threads?, ~percentage?, ~upload, ~args) {
-      | Ok(_) => ()
-      | Error(e) => ns->NS.tprint2(`ERROR: failed to run script ${script} on server ${server}: `, e)
+      if ns->NS.getServerMaxRam(server) > 0.0 {
+        switch ns->Helpers.execScript(server, script, ~threads?, ~percentage?, ~upload, ~args) {
+        | Ok(_) => ()
+        | Error(e) =>
+          ns->NS.tprint2(`ERROR: failed to run script ${script} on server ${server}: `, e)
+        }
       }
     )
   }

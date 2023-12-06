@@ -20,6 +20,12 @@ function argsToStrings(args) {
             });
 }
 
+function stringsToArgs(strings) {
+  return strings.map(function (s) {
+              return s;
+            });
+}
+
 function argsHasHelp(args) {
   return args.some(function (arg) {
               return arg === "--help";
@@ -98,6 +104,7 @@ function getFlagsExn(ns, obj) {
 export {
   onlyHelpSchema ,
   argsToStrings ,
+  stringsToArgs ,
   argsHasHelp ,
   schemaToFlagsExn ,
   getFlagsExn ,
