@@ -3,6 +3,7 @@
 import * as Flags from "../../lib/Flags.res.mjs";
 import * as Helpers from "../../lib/Helpers.res.mjs";
 import * as GangUtils from "../../lib/GangUtils.res.mjs";
+import * as Caml_int32 from "rescript/lib/es6/caml_int32.js";
 
 async function main(ns) {
   var match = Flags.getFlagsExn(ns, Flags.onlyHelpSchema);
@@ -18,6 +19,7 @@ async function main(ns) {
           contents: undefined
         };
         var waitLonger = true;
+        var bonusFactor = gang.getBonusTime() > 5000.0 ? 25 : 1;
         gang.getMemberNames().forEach((function(toAscend){
             return function (member) {
               var ascension = gang.getAscensionResult(member);
@@ -41,7 +43,8 @@ async function main(ns) {
           var member = match$1[1];
           ns.print("INFO: ascending " + member + ", multiplier factor " + match$1[0].toString());
           if (await GangUtils.ascendAndBuyEquipments(ns, member)) {
-            if (await GangUtils.train(ns, member, "Hacking", 300000)) {
+            ns.print("INFO: " + member + " has been ascended");
+            if (await GangUtils.train(ns, member, "Hacking", Caml_int32.div(300000, bonusFactor))) {
               waitLonger = false;
             }
             
@@ -49,10 +52,11 @@ async function main(ns) {
             ns.print("ERROR: failed to ascend " + member);
           }
         }
+        ns.print("INFO: waiting for next turn");
         if (waitLonger) {
-          await Helpers.sleep(ns, 600000);
+          await Helpers.sleep(ns, Caml_int32.div(600000, bonusFactor));
         } else {
-          await Helpers.sleep(ns, 300000);
+          await Helpers.sleep(ns, Caml_int32.div(300000, bonusFactor));
         }
       };
       return ;
@@ -71,10 +75,7 @@ function autocomplete(data, args) {
   return [];
 }
 
-var ascendScript = "/scripts/exec/gang/Ascend.res.js";
-
 export {
-  ascendScript ,
   main ,
   autocomplete ,
 }

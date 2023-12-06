@@ -62,7 +62,7 @@ let train = async (ns, memberName, trainType, ~milliseconds=300000) => {
     taskNames->Array.some(task => task === trainType) &&
       taskNames->Array.some(task => task === oldTask)
   ) {
-    ns->NS.print(`INFO: start to train ${memberName}: ${trainType}`)
+    ns->NS.print(`INFO: start training ${memberName}: ${trainType}`)
 
     if gang->Gang.setMemberTask(memberName, trainType) {
       await ns->Helpers.sleep(milliseconds)
@@ -70,6 +70,8 @@ let train = async (ns, memberName, trainType, ~milliseconds=300000) => {
       let currentTask = (gang->Gang.getMemberInformation(memberName)).task
       if currentTask === trainType {
         if gang->Gang.setMemberTask(memberName, oldTask) {
+          ns->NS.print(`SUCCESS: stop training ${memberName}: ${trainType}`)
+
           true
         } else {
           ns->NS.print(`ERROR: failed to set task ${oldTask} to ${memberName}`)

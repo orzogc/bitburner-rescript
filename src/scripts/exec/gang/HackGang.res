@@ -1,5 +1,3 @@
-let ascendScript = "/scripts/exec/gang/Ascend.res.js"
-
 let main: NS.main = async ns => {
   let (flags, _) = ns->Flags.getFlagsExn(Flags.onlyHelpSchema)
   let gang = ns->NS.gang
@@ -14,6 +12,11 @@ let main: NS.main = async ns => {
     while true {
       let toAscend = ref(None)
       let waitLonger = ref(true)
+      let bonusFactor = if gang->Gang.getBonusTime > 5000.0 {
+        25
+      } else {
+        1
+      }
 
       gang
       ->Gang.getMemberNames
@@ -36,7 +39,8 @@ let main: NS.main = async ns => {
           ns->NS.print(`INFO: ascending ${member}, multiplier factor ${factor->Float.toString}`)
 
           if await ns->GangUtils.ascendAndBuyEquipments(member) {
-            if await ns->GangUtils.train(member, Hacking, ~milliseconds=300000) {
+            ns->NS.print(`INFO: ${member} has been ascended`)
+            if await ns->GangUtils.train(member, Hacking, ~milliseconds=300000 / bonusFactor) {
               waitLonger := false
             }
           } else {
@@ -46,10 +50,11 @@ let main: NS.main = async ns => {
       | None => ()
       }
 
+      ns->NS.print("INFO: waiting for next turn")
       if waitLonger.contents {
-        await ns->Helpers.sleep(600000)
+        await ns->Helpers.sleep(600000 / bonusFactor)
       } else {
-        await ns->Helpers.sleep(300000)
+        await ns->Helpers.sleep(300000 / bonusFactor)
       }
     }
   }

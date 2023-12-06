@@ -66,12 +66,13 @@ async function train(ns, memberName, trainType, millisecondsOpt) {
         }) && taskNames.some(function (task) {
           return task === oldTask;
         })) {
-    ns.print("INFO: start to train " + memberName + ": " + trainType$1);
+    ns.print("INFO: start training " + memberName + ": " + trainType$1);
     if (gang.setMemberTask(memberName, trainType$1)) {
       await Helpers.sleep(ns, milliseconds);
       var currentTask = gang.getMemberInformation(memberName).task;
       if (currentTask === trainType$1) {
         if (gang.setMemberTask(memberName, oldTask)) {
+          ns.print("SUCCESS: stop training " + memberName + ": " + trainType$1);
           return true;
         } else {
           ns.print("ERROR: failed to set task " + oldTask + " to " + memberName);
